@@ -1,21 +1,29 @@
 package cn.dancingsnow.aeinfinitycell;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import cpw.mods.fml.common.event.FMLServerStoppingEvent;
 
-@Mod(modid = AEInfinityCell.MODID, version = Tags.VERSION, name = "AE2 Infinity Cell", acceptedMinecraftVersions = "[1.7.10]")
+@Mod(
+    modid = AEInfinityCell.MODID,
+    version = Tags.VERSION,
+    name = "AE2 Infinity Cell",
+    acceptedMinecraftVersions = "[1.7.10]")
 public class AEInfinityCell {
 
     public static final String MODID = "aeinfinitycell";
     public static final Logger LOG = LogManager.getLogger(MODID);
 
-    @SidedProxy(clientSide = "cn.dancingsnow.aeinfinitycell.ClientProxy", serverSide = "cn.dancingsnow.aeinfinitycell.CommonProxy")
+    @SidedProxy(
+        clientSide = "cn.dancingsnow.aeinfinitycell.ClientProxy",
+        serverSide = "cn.dancingsnow.aeinfinitycell.CommonProxy")
     public static CommonProxy proxy;
 
     @Mod.EventHandler
@@ -43,4 +51,8 @@ public class AEInfinityCell {
         proxy.serverStarting(event);
     }
 
+    @Mod.EventHandler
+    public void serverStopping(FMLServerStoppingEvent event) {
+        proxy.serverStopping(event);
+    }
 }
