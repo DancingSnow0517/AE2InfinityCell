@@ -1,5 +1,6 @@
 package cn.dancingsnow.aeinfinitycell.ae;
 
+import java.math.BigInteger;
 import java.util.Map;
 
 import net.minecraft.item.ItemStack;
@@ -49,20 +50,17 @@ public final class InfinityFluidInventoryHandler extends AbstractInfinityInvento
 
     @Override
     protected void addAvailable(InfinityCellRecord record, IItemList<IAEFluidStack> out) {
-        for (Map.Entry<FluidStackKey, Long> entry : record.getFluidsView()
+        for (Map.Entry<FluidStackKey, BigInteger> entry : record.getFluidsView()
             .entrySet()) {
+            long aeAmount = record.getFluidAmount(entry.getKey());
             FluidStack stack = entry.getKey()
-                .toStack(
-                    entry.getValue()
-                        .longValue());
+                .toStack(aeAmount);
             if (stack == null) {
                 continue;
             }
             IAEFluidStack aeStack = AEFluidStack.create(stack);
             if (aeStack != null) {
-                aeStack.setStackSize(
-                    entry.getValue()
-                        .longValue());
+                aeStack.setStackSize(aeAmount);
                 out.addStorage(aeStack);
             }
         }

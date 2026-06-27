@@ -1,5 +1,6 @@
 package cn.dancingsnow.aeinfinitycell.storage;
 
+import java.math.BigInteger;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -13,25 +14,35 @@ public final class InfinityCellRecord {
     private static final String KEY_ITEMS = "items";
     private static final String KEY_FLUIDS = "fluids";
     private static final String KEY_AMOUNT = "amount";
+    private static final String KEY_BIG_AMOUNT = "amountBig";
 
-    private final Map<ItemStackKey, Long> items = new LinkedHashMap<ItemStackKey, Long>();
-    private final Map<FluidStackKey, Long> fluids = new LinkedHashMap<FluidStackKey, Long>();
+    private static final BigInteger BIG_ZERO = BigInteger.ZERO;
+    private static final BigInteger BIG_LONG_MAX = BigInteger.valueOf(Long.MAX_VALUE);
+
+    private final Map<ItemStackKey, BigInteger> items = new LinkedHashMap<ItemStackKey, BigInteger>();
+    private final Map<FluidStackKey, BigInteger> fluids = new LinkedHashMap<FluidStackKey, BigInteger>();
 
     public long getItemAmount(ItemStackKey key) {
-        Long amount = items.get(key);
-        return amount == null ? 0L : amount.longValue();
+        return clampToLong(amount(items, key));
     }
 
     public long getFluidAmount(FluidStackKey key) {
-        Long amount = fluids.get(key);
-        return amount == null ? 0L : amount.longValue();
+        return clampToLong(amount(fluids, key));
     }
 
     public void addItem(ItemStackKey key, long amount) {
+        addItem(key, BigInteger.valueOf(amount));
+    }
+
+    public void addItem(ItemStackKey key, BigInteger amount) {
         add(items, key, amount);
     }
 
     public void addFluid(FluidStackKey key, long amount) {
+        addFluid(key, BigInteger.valueOf(amount));
+    }
+
+    public void addFluid(FluidStackKey key, BigInteger amount) {
         add(fluids, key, amount);
     }
 
@@ -43,11 +54,11 @@ public final class InfinityCellRecord {
         return remove(fluids, key, requested);
     }
 
-    public Map<ItemStackKey, Long> getItemsView() {
+    public Map<ItemStackKey, BigInteger> getItemsView() {
         return java.util.Collections.unmodifiableMap(items);
     }
 
-    public Map<FluidStackKey, Long> getFluidsView() {
+    public Map<FluidStackKey, BigInteger> getFluidsView() {
         return java.util.Collections.unmodifiableMap(fluids);
     }
 
@@ -60,11 +71,11 @@ public final class InfinityCellRecord {
     }
 
     public long getStoredItemUnits() {
-        return sum(items);
+        return clampToLong(sum(items));
     }
 
     public long getStoredFluidUnits() {
-        return sum(fluids);
+        return clampToLong(sum(fluids));
     }
 
     public NBTTagCompound writeToNBT() {
@@ -83,14 +94,13 @@ public final class InfinityCellRecord {
 
     private NBTTagList writeItems() {
         NBTTagList list = new NBTTagList();
-        for (Map.Entry<ItemStackKey, Long> entry : items.entrySet()) {
+        for (Map.Entry<ItemStackKey, BigInteger> entry : items.entrySet()) {
             if (entry.getValue()
-                .longValue() > 0L) {
-                list.appendTag(
-                    entry.getKey()
-                        .writeToNBT(
-                            entry.getValue()
-                                .longValue()));
+                .signum() > 0) {
+                NBTTagCompound tag = entry.getKey()
+                    .writeToNBT(clampToLong(entry.getValue()));
+                writeAmount(tag, entry.getValue());
+                list.appendTag(tag);
             }
         }
         return list;
@@ -98,14 +108,13 @@ public final class InfinityCellRecord {
 
     private NBTTagList writeFluids() {
         NBTTagList list = new NBTTagList();
-        for (Map.Entry<FluidStackKey, Long> entry : fluids.entrySet()) {
+        for (Map.Entry<FluidStackKey, BigInteger> entry : fluids.entrySet()) {
             if (entry.getValue()
-                .longValue() > 0L) {
-                list.appendTag(
-                    entry.getKey()
-                        .writeToNBT(
-                            entry.getValue()
-                                .longValue()));
+                .signum() > 0) {
+                NBTTagCompound tag = entry.getKey()
+                    .writeToNBT(clampToLong(entry.getValue()));
+                writeAmount(tag, entry.getValue());
+                list.appendTag(tag);
             }
         }
         return list;
@@ -114,9 +123,9 @@ public final class InfinityCellRecord {
     private void readItems(NBTTagList list) {
         for (int i = 0; i < list.tagCount(); i++) {
             NBTTagCompound entry = list.getCompoundTagAt(i);
-            long amount = entry.getLong(KEY_AMOUNT);
-            if (amount > 0L) {
-                items.put(ItemStackKey.readFromNBT(entry), Long.valueOf(amount));
+            BigInteger amount = readAmount(entry);
+            if (amount.signum() > 0) {
+                items.put(ItemStackKey.readFromNBT(entry), amount);
             }
         }
     }
@@ -124,9 +133,9 @@ public final class InfinityCellRecord {
     private void readFluids(NBTTagList list) {
         for (int i = 0; i < list.tagCount(); i++) {
             NBTTagCompound entry = list.getCompoundTagAt(i);
-            long amount = entry.getLong(KEY_AMOUNT);
-            if (amount > 0L) {
-                fluids.put(FluidStackKey.readFromNBT(entry), Long.valueOf(amount));
+            BigInteger amount = readAmount(entry);
+            if (amount.signum() > 0) {
+                fluids.put(FluidStackKey.readFromNBT(entry), amount);
             }
         }
     }
@@ -139,49 +148,66 @@ public final class InfinityCellRecord {
         return key.toStack(amount);
     }
 
-    private static <K> void add(Map<K, Long> map, K key, long amount) {
-        if (amount <= 0L) {
+    private static <K> void add(Map<K, BigInteger> map, K key, BigInteger amount) {
+        if (amount == null || amount.signum() <= 0) {
             return;
         }
-        long current = amount(map, key);
-        long next = saturatedAdd(current, amount);
-        map.put(key, Long.valueOf(next));
+        map.put(key, amount(map, key).add(amount));
     }
 
-    private static <K> long remove(Map<K, Long> map, K key, long requested) {
+    private static <K> long remove(Map<K, BigInteger> map, K key, long requested) {
         if (requested <= 0L) {
             return 0L;
         }
 
-        long current = amount(map, key);
-        long extracted = Math.min(current, requested);
-        long remaining = current - extracted;
-        if (remaining > 0L) {
-            map.put(key, Long.valueOf(remaining));
+        BigInteger current = amount(map, key);
+        BigInteger requestedAmount = BigInteger.valueOf(requested);
+        BigInteger extracted = current.min(requestedAmount);
+        BigInteger remaining = current.subtract(extracted);
+        if (remaining.signum() > 0) {
+            map.put(key, remaining);
         } else {
             map.remove(key);
         }
-        return extracted;
+        return clampToLong(extracted);
     }
 
-    private static <K> long amount(Map<K, Long> map, K key) {
-        Long current = map.get(key);
-        return current == null ? 0L : current.longValue();
+    private static <K> BigInteger amount(Map<K, BigInteger> map, K key) {
+        BigInteger current = map.get(key);
+        return current == null ? BIG_ZERO : current;
     }
 
-    private static long sum(Map<?, Long> map) {
-        long total = 0L;
-        for (Long amount : map.values()) {
-            total = saturatedAdd(total, amount.longValue());
+    private static BigInteger sum(Map<?, BigInteger> map) {
+        BigInteger total = BIG_ZERO;
+        for (BigInteger amount : map.values()) {
+            total = total.add(amount);
         }
         return total;
     }
 
-    private static long saturatedAdd(long a, long b) {
-        long result = a + b;
-        if (((a ^ result) & (b ^ result)) < 0L) {
+    private static long clampToLong(BigInteger amount) {
+        if (amount.compareTo(BIG_LONG_MAX) > 0) {
             return Long.MAX_VALUE;
         }
-        return result;
+        if (amount.signum() < 0) {
+            return 0L;
+        }
+        return amount.longValue();
+    }
+
+    private static void writeAmount(NBTTagCompound tag, BigInteger amount) {
+        tag.setLong(KEY_AMOUNT, clampToLong(amount));
+        tag.setString(KEY_BIG_AMOUNT, amount.toString());
+    }
+
+    private static BigInteger readAmount(NBTTagCompound tag) {
+        if (tag.hasKey(KEY_BIG_AMOUNT, 8)) {
+            try {
+                return new BigInteger(tag.getString(KEY_BIG_AMOUNT));
+            } catch (NumberFormatException ignored) {
+                return BIG_ZERO;
+            }
+        }
+        return BigInteger.valueOf(tag.getLong(KEY_AMOUNT));
     }
 }

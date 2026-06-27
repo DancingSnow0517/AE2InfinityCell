@@ -1,5 +1,6 @@
 package cn.dancingsnow.aeinfinitycell.ae;
 
+import java.math.BigInteger;
 import java.util.Map;
 
 import net.minecraft.item.ItemStack;
@@ -55,20 +56,17 @@ public final class InfinityItemInventoryHandler extends AbstractInfinityInventor
 
     @Override
     protected void addAvailable(InfinityCellRecord record, IItemList<IAEItemStack> out) {
-        for (Map.Entry<ItemStackKey, Long> entry : record.getItemsView()
+        for (Map.Entry<ItemStackKey, BigInteger> entry : record.getItemsView()
             .entrySet()) {
+            long aeAmount = record.getItemAmount(entry.getKey());
             ItemStack stack = entry.getKey()
-                .toStack(
-                    entry.getValue()
-                        .longValue());
+                .toStack(aeAmount);
             if (stack == null) {
                 continue;
             }
             IAEItemStack aeStack = AEItemStack.create(stack);
             if (aeStack != null) {
-                aeStack.setStackSize(
-                    entry.getValue()
-                        .longValue());
+                aeStack.setStackSize(aeAmount);
                 out.addStorage(aeStack);
             }
         }

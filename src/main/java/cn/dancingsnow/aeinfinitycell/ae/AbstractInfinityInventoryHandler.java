@@ -202,6 +202,10 @@ public abstract class AbstractInfinityInventoryHandler<T extends IAEStack<T>>
         return copy;
     }
 
+    public final boolean isForCellStack(ItemStack stack) {
+        return this.cellStack == stack;
+    }
+
     protected final InfinityCellRecord record() {
         World world = ServerWorldAccess.getServerWorld();
         return ItemInfinityStorageCell.getRecord(cellStack, world);
