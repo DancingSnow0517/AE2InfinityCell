@@ -9,10 +9,13 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.fluids.FluidStack;
 
+import thaumicenergistics.common.storage.AEEssentiaStack;
+
 public final class InfinityCellRecord {
 
     private static final String KEY_ITEMS = "items";
     private static final String KEY_FLUIDS = "fluids";
+    private static final String KEY_ESSENTIA = "essentia";
     private static final String KEY_AMOUNT = "amount";
 
     private static final BigInteger BIG_ZERO = BigInteger.ZERO;
@@ -20,6 +23,7 @@ public final class InfinityCellRecord {
 
     private final Map<ItemStackKey, BigInteger> items = new LinkedHashMap<ItemStackKey, BigInteger>();
     private final Map<FluidStackKey, BigInteger> fluids = new LinkedHashMap<FluidStackKey, BigInteger>();
+    private final Map<EssentiaStackKey, BigInteger> essentia = new LinkedHashMap<EssentiaStackKey, BigInteger>();
 
     public long getItemAmount(ItemStackKey key) {
         return clampToLong(amount(items, key));
@@ -27,6 +31,10 @@ public final class InfinityCellRecord {
 
     public long getFluidAmount(FluidStackKey key) {
         return clampToLong(amount(fluids, key));
+    }
+
+    public long getEssentiaAmount(EssentiaStackKey key) {
+        return clampToLong(amount(essentia, key));
     }
 
     public void addItem(ItemStackKey key, long amount) {
@@ -45,12 +53,24 @@ public final class InfinityCellRecord {
         add(fluids, key, amount);
     }
 
+    public void addEssentia(EssentiaStackKey key, long amount) {
+        addEssentia(key, BigInteger.valueOf(amount));
+    }
+
+    public void addEssentia(EssentiaStackKey key, BigInteger amount) {
+        add(essentia, key, amount);
+    }
+
     public long removeItem(ItemStackKey key, long requested) {
         return remove(items, key, requested);
     }
 
     public long removeFluid(FluidStackKey key, long requested) {
         return remove(fluids, key, requested);
+    }
+
+    public long removeEssentia(EssentiaStackKey key, long requested) {
+        return remove(essentia, key, requested);
     }
 
     public Map<ItemStackKey, BigInteger> getItemsView() {
@@ -61,12 +81,20 @@ public final class InfinityCellRecord {
         return java.util.Collections.unmodifiableMap(fluids);
     }
 
+    public Map<EssentiaStackKey, BigInteger> getEssentiaView() {
+        return java.util.Collections.unmodifiableMap(essentia);
+    }
+
     public long getUsedItemTypes() {
         return items.size();
     }
 
     public long getUsedFluidTypes() {
         return fluids.size();
+    }
+
+    public long getUsedEssentiaTypes() {
+        return essentia.size();
     }
 
     public long getStoredItemUnits() {
@@ -77,23 +105,44 @@ public final class InfinityCellRecord {
         return clampToLong(sum(fluids));
     }
 
+    public long getStoredEssentiaUnits() {
+        return clampToLong(sum(essentia));
+    }
+
     public NBTTagCompound writeToNBT() {
         NBTTagCompound tag = new NBTTagCompound();
         tag.setTag(KEY_ITEMS, writeItems());
         tag.setTag(KEY_FLUIDS, writeFluids());
+        tag.setTag(KEY_ESSENTIA, writeEssentia());
         return tag;
     }
 
     public void readFromNBT(NBTTagCompound tag) {
         items.clear();
         fluids.clear();
+        essentia.clear();
         readItems(tag.getTagList(KEY_ITEMS, 10));
         readFluids(tag.getTagList(KEY_FLUIDS, 10));
+        readEssentia(tag.getTagList(KEY_ESSENTIA, 10));
     }
 
     private NBTTagList writeItems() {
         NBTTagList list = new NBTTagList();
         for (Map.Entry<ItemStackKey, BigInteger> entry : items.entrySet()) {
+            if (entry.getValue()
+                .signum() > 0) {
+                NBTTagCompound tag = entry.getKey()
+                    .writeToNBT(clampToLong(entry.getValue()));
+                writeAmount(tag, entry.getValue());
+                list.appendTag(tag);
+            }
+        }
+        return list;
+    }
+
+    private NBTTagList writeEssentia() {
+        NBTTagList list = new NBTTagList();
+        for (Map.Entry<EssentiaStackKey, BigInteger> entry : essentia.entrySet()) {
             if (entry.getValue()
                 .signum() > 0) {
                 NBTTagCompound tag = entry.getKey()
@@ -139,11 +188,25 @@ public final class InfinityCellRecord {
         }
     }
 
+    private void readEssentia(NBTTagList list) {
+        for (int i = 0; i < list.tagCount(); i++) {
+            NBTTagCompound entry = list.getCompoundTagAt(i);
+            BigInteger amount = readAmount(entry);
+            if (amount.signum() > 0) {
+                essentia.put(EssentiaStackKey.readFromNBT(entry), amount);
+            }
+        }
+    }
+
     public ItemStack createItemStack(ItemStackKey key, long amount) {
         return key.toStack(amount);
     }
 
     public FluidStack createFluidStack(FluidStackKey key, long amount) {
+        return key.toStack(amount);
+    }
+
+    public AEEssentiaStack createEssentiaStack(EssentiaStackKey key, long amount) {
         return key.toStack(amount);
     }
 

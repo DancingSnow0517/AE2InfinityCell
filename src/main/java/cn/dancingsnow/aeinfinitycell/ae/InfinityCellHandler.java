@@ -14,6 +14,7 @@ import appeng.api.storage.data.IAEStackType;
 import appeng.util.item.AEFluidStackType;
 import appeng.util.item.AEItemStackType;
 import cn.dancingsnow.aeinfinitycell.item.ItemInfinityStorageCell;
+import thaumicenergistics.common.storage.AEEssentiaStackType;
 
 public final class InfinityCellHandler implements ICellHandler {
 
@@ -32,6 +33,9 @@ public final class InfinityCellHandler implements ICellHandler {
         }
         if (type == AEFluidStackType.FLUID_STACK_TYPE) {
             return new InfinityFluidInventoryHandler(is, host);
+        }
+        if (type == AEEssentiaStackType.ESSENTIA_STACK_TYPE) {
+            return new InfinityEssentiaInventoryHandler(is, host);
         }
         return null;
     }

@@ -52,6 +52,36 @@ public class InfinityCellRecordTest {
     }
 
     @Test
+    public void essentiaAmountsRoundTripThroughNbt() {
+        InfinityCellRecord record = new InfinityCellRecord();
+        EssentiaStackKey key = essentiaKey("aer");
+        BigInteger amount = BigInteger.valueOf(Long.MAX_VALUE)
+            .add(BigInteger.valueOf(99L));
+
+        record.addEssentia(key, amount);
+
+        InfinityCellRecord loaded = new InfinityCellRecord();
+        NBTTagCompound serialized = record.writeToNBT();
+        loaded.readFromNBT(serialized);
+
+        assertEquals(Long.MAX_VALUE, loaded.getEssentiaAmount(key));
+        assertEquals(
+            amount,
+            loaded.getEssentiaView()
+                .get(key));
+        assertEquals(
+            "aer",
+            serialized.getTagList("essentia", 10)
+                .getCompoundTagAt(0)
+                .getString("aspect"));
+        assertEquals(
+            amount.toString(),
+            serialized.getTagList("essentia", 10)
+                .getCompoundTagAt(0)
+                .getString("amount"));
+    }
+
+    @Test
     public void legacyLongAmountsAreIgnored() {
         InfinityCellRecord record = new InfinityCellRecord();
         ItemStackKey key = itemKey("minecraft:cobblestone", 0);
@@ -78,5 +108,11 @@ public class InfinityCellRecordTest {
         tag.setString("id", id);
         tag.setInteger("meta", meta);
         return ItemStackKey.readFromNBT(tag);
+    }
+
+    private static EssentiaStackKey essentiaKey(String aspect) {
+        NBTTagCompound tag = new NBTTagCompound();
+        tag.setString("aspect", aspect);
+        return EssentiaStackKey.readFromNBT(tag);
     }
 }

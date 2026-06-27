@@ -25,6 +25,7 @@ import appeng.util.item.AEFluidStackType;
 import appeng.util.item.AEItemStackType;
 import cn.dancingsnow.aeinfinitycell.ae.AbstractInfinityInventoryHandler;
 import cn.dancingsnow.aeinfinitycell.item.ItemInfinityStorageCell;
+import thaumicenergistics.common.storage.AEEssentiaStackType;
 
 @Mixin(value = TileDrive.class, remap = false)
 public abstract class TileDriveMixin {
@@ -60,6 +61,7 @@ public abstract class TileDriveMixin {
 
             this.aeinfinitycell$mountMissingHandler(stack, cellHandler, AEItemStackType.ITEM_STACK_TYPE);
             this.aeinfinitycell$mountMissingHandler(stack, cellHandler, AEFluidStackType.FLUID_STACK_TYPE);
+            this.aeinfinitycell$mountMissingHandler(stack, cellHandler, AEEssentiaStackType.ESSENTIA_STACK_TYPE);
         }
     }
 
