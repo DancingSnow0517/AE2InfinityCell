@@ -23,7 +23,7 @@ public class FluidStackKeyTest {
         FluidStackKey loaded = FluidStackKey.readFromNBT(serialized);
 
         assertEquals(key, loaded);
-        assertEquals(2500L, serialized.getLong("amount"));
+        assertEquals("2500", serialized.getString("amount"));
         assertEquals("water", serialized.getString("id"));
         assertEquals(2500, loaded.toStack(2500L).amount);
     }
@@ -45,7 +45,7 @@ public class FluidStackKeyTest {
     public void unknownFluidDoesNotReconstruct() {
         NBTTagCompound tag = new NBTTagCompound();
         tag.setString("id", "missing_fluid");
-        tag.setLong("amount", 1000L);
+        tag.setString("amount", "1000");
 
         FluidStackKey key = FluidStackKey.readFromNBT(tag);
 

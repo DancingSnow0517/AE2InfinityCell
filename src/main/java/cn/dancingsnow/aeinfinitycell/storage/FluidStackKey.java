@@ -37,7 +37,7 @@ public final class FluidStackKey {
     public NBTTagCompound writeToNBT(long amount) {
         NBTTagCompound serialized = new NBTTagCompound();
         serialized.setString(KEY_FLUID_ID, fluidName);
-        serialized.setLong(KEY_AMOUNT, amount);
+        serialized.setString(KEY_AMOUNT, Long.toString(amount));
         if (!tag.isEmpty()) {
             serialized.setTag(KEY_TAG, tag.copyTag());
         }

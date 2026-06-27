@@ -14,7 +14,6 @@ public final class InfinityCellRecord {
     private static final String KEY_ITEMS = "items";
     private static final String KEY_FLUIDS = "fluids";
     private static final String KEY_AMOUNT = "amount";
-    private static final String KEY_BIG_AMOUNT = "amountBig";
 
     private static final BigInteger BIG_ZERO = BigInteger.ZERO;
     private static final BigInteger BIG_LONG_MAX = BigInteger.valueOf(Long.MAX_VALUE);
@@ -196,18 +195,17 @@ public final class InfinityCellRecord {
     }
 
     private static void writeAmount(NBTTagCompound tag, BigInteger amount) {
-        tag.setLong(KEY_AMOUNT, clampToLong(amount));
-        tag.setString(KEY_BIG_AMOUNT, amount.toString());
+        tag.setString(KEY_AMOUNT, amount.toString());
     }
 
     private static BigInteger readAmount(NBTTagCompound tag) {
-        if (tag.hasKey(KEY_BIG_AMOUNT, 8)) {
-            try {
-                return new BigInteger(tag.getString(KEY_BIG_AMOUNT));
-            } catch (NumberFormatException ignored) {
-                return BIG_ZERO;
-            }
+        if (!tag.hasKey(KEY_AMOUNT, 8)) {
+            return BIG_ZERO;
         }
-        return BigInteger.valueOf(tag.getLong(KEY_AMOUNT));
+        try {
+            return new BigInteger(tag.getString(KEY_AMOUNT));
+        } catch (NumberFormatException ignored) {
+            return BIG_ZERO;
+        }
     }
 }

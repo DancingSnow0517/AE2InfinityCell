@@ -50,7 +50,7 @@ public final class ItemStackKey {
         if (!tag.isEmpty()) {
             serialized.setTag(KEY_TAG, tag.copyTag());
         }
-        serialized.setLong(KEY_AMOUNT, amount);
+        serialized.setString(KEY_AMOUNT, Long.toString(amount));
         return serialized;
     }
 

@@ -36,20 +36,29 @@ public class InfinityCellRecordTest {
         record.addItem(key, amount);
 
         InfinityCellRecord loaded = new InfinityCellRecord();
-        loaded.readFromNBT(record.writeToNBT());
+        NBTTagCompound serialized = record.writeToNBT();
+        loaded.readFromNBT(serialized);
 
         assertEquals(Long.MAX_VALUE, loaded.getItemAmount(key));
         assertEquals(
             amount,
             loaded.getItemsView()
                 .get(key));
+        assertEquals(
+            amount.toString(),
+            serialized.getTagList("items", 10)
+                .getCompoundTagAt(0)
+                .getString("amount"));
     }
 
     @Test
-    public void legacyLongAmountsStillLoad() {
+    public void legacyLongAmountsAreIgnored() {
         InfinityCellRecord record = new InfinityCellRecord();
         ItemStackKey key = itemKey("minecraft:cobblestone", 0);
-        NBTTagCompound tag = key.writeToNBT(1234L);
+        NBTTagCompound tag = new NBTTagCompound();
+        tag.setString("item", "minecraft:cobblestone");
+        tag.setInteger("damage", 0);
+        tag.setLong("amount", 1234L);
         NBTTagCompound root = new NBTTagCompound();
         net.minecraft.nbt.NBTTagList items = new net.minecraft.nbt.NBTTagList();
         items.appendTag(tag);
@@ -57,11 +66,11 @@ public class InfinityCellRecordTest {
 
         record.readFromNBT(root);
 
-        assertEquals(1234L, record.getItemAmount(key));
+        assertEquals(0L, record.getItemAmount(key));
         assertEquals(
-            BigInteger.valueOf(1234L),
+            0,
             record.getItemsView()
-                .get(key));
+                .size());
     }
 
     private static ItemStackKey itemKey(String id, int meta) {
