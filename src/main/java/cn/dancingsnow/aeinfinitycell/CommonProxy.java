@@ -8,12 +8,12 @@ import cn.dancingsnow.aeinfinitycell.ae.InfinityCellHandler;
 import cn.dancingsnow.aeinfinitycell.item.ModItems;
 import cn.dancingsnow.aeinfinitycell.storage.InfinityCellDataAccess;
 import cn.dancingsnow.aeinfinitycell.storage.InfinityCellStorage;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.event.FMLServerStoppingEvent;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 
 public class CommonProxy {
 
@@ -41,15 +41,18 @@ public class CommonProxy {
     }
 
     public void serverStopping(FMLServerStoppingEvent event) {
-        InfinityCellStorage.getInstance().saveAll();
-        InfinityCellStorage.getInstance().clear();
+        InfinityCellStorage.getInstance()
+            .saveAll();
+        InfinityCellStorage.getInstance()
+            .clear();
         ServerWorldAccess.clear();
     }
 
     @SubscribeEvent
     public void onWorldSave(WorldEvent.Save event) {
         if (event.world.provider.dimensionId == 0) {
-            InfinityCellStorage.getInstance().saveAll();
+            InfinityCellStorage.getInstance()
+                .saveAll();
         }
     }
 }

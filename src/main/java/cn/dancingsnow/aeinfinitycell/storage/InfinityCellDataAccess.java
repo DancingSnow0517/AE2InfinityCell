@@ -18,14 +18,16 @@ public final class InfinityCellDataAccess {
         if (serverWorld(world) == null) {
             return null;
         }
-        return InfinityCellStorage.getInstance().getOrCreate(id);
+        return InfinityCellStorage.getInstance()
+            .getOrCreate(id);
     }
 
     public static void markDirty(UUID id, World world) {
         if (serverWorld(world) == null) {
             return;
         }
-        InfinityCellStorage.getInstance().markDirty(id);
+        InfinityCellStorage.getInstance()
+            .markDirty(id);
     }
 
     /**
@@ -40,19 +42,23 @@ public final class InfinityCellDataAccess {
 
         InfinityCellLegacySavedData legacy = (InfinityCellLegacySavedData) serverWorld
             .loadItemData(InfinityCellLegacySavedData.class, InfinityCellLegacySavedData.DATA_NAME);
-        if (legacy == null || legacy.getRecords().isEmpty()) {
+        if (legacy == null || legacy.getRecords()
+            .isEmpty()) {
             return;
         }
 
         InfinityCellStorage storage = InfinityCellStorage.getInstance();
         int migrated = 0;
-        for (Map.Entry<UUID, InfinityCellRecord> entry : legacy.getRecords().entrySet()) {
+        for (Map.Entry<UUID, InfinityCellRecord> entry : legacy.getRecords()
+            .entrySet()) {
             UUID id = entry.getKey();
             if (storage.hasCellFile(id)) {
                 continue;
             }
             InfinityCellRecord dest = storage.getOrCreate(id);
-            dest.readFromNBT(entry.getValue().writeToNBT());
+            dest.readFromNBT(
+                entry.getValue()
+                    .writeToNBT());
             storage.markDirty(id);
             migrated++;
         }
