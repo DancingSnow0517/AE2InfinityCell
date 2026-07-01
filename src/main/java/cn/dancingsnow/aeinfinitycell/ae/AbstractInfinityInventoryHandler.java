@@ -213,7 +213,7 @@ public abstract class AbstractInfinityInventoryHandler<T extends IAEStack<T>>
 
     protected final void markChanged() {
         World world = ServerWorldAccess.getServerWorld();
-        ItemInfinityStorageCell.markDirty(world);
+        ItemInfinityStorageCell.markDirty(cellStack, world);
         if (saveProvider != null) {
             saveProvider.saveChanges(this);
         }

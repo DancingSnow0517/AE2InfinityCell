@@ -13,7 +13,6 @@ import net.minecraft.world.World;
 import cn.dancingsnow.aeinfinitycell.AEInfinityCell;
 import cn.dancingsnow.aeinfinitycell.storage.InfinityCellDataAccess;
 import cn.dancingsnow.aeinfinitycell.storage.InfinityCellRecord;
-import cn.dancingsnow.aeinfinitycell.storage.InfinityCellSavedData;
 
 public final class ItemInfinityStorageCell extends Item {
 
@@ -28,7 +27,7 @@ public final class ItemInfinityStorageCell extends Item {
     }
 
     @Override
-    public void addInformation(ItemStack stack, net.minecraft.entity.player.EntityPlayer player, List tooltip,
+    public void addInformation(ItemStack stack, net.minecraft.entity.player.EntityPlayer player, List<String> tooltip,
         boolean advanced) {
         UUID id = getStorageId(stack);
         tooltip.add(StatCollector.translateToLocal("tooltip.aeinfinitycell.infinity_storage_cell"));
@@ -65,18 +64,16 @@ public final class ItemInfinityStorageCell extends Item {
             return null;
         }
 
-        InfinityCellSavedData data = InfinityCellDataAccess.get(world);
-        if (data == null) {
-            return null;
-        }
-        return data.getOrCreate(getOrCreateStorageId(stack));
+        UUID id = getOrCreateStorageId(stack);
+        return InfinityCellDataAccess.getOrCreate(id, world);
     }
 
-    public static void markDirty(World world) {
-        InfinityCellSavedData data = InfinityCellDataAccess.get(world);
-        if (data != null) {
-            data.markDirty();
+    public static void markDirty(ItemStack stack, World world) {
+        UUID id = getStorageId(stack);
+        if (id == null) {
+            return;
         }
+        InfinityCellDataAccess.markDirty(id, world);
     }
 
     private static NBTTagCompound getRootTag(ItemStack stack, boolean create) {
