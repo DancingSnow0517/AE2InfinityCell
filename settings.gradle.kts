@@ -12,15 +12,6 @@ pluginManagement {
         gradlePluginPortal()
         mavenCentral()
         mavenLocal()
-        maven { url = uri("https://www.jitpack.io") }
-    }
-
-    resolutionStrategy {
-        eachPlugin {
-            if (requested.id.id == "io.github.DancingSnow0517.gtnh-catalog.settings") {
-                useModule("com.github.DancingSnow0517.gtnh-catalog:io.github.DancingSnow0517.gtnh-catalog.settings.gradle.plugin:${requested.version}")
-            }
-        }
     }
 }
 
