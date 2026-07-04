@@ -1,12 +1,12 @@
 package cn.dancingsnow.aeinfinitycell;
 
-import cn.dancingsnow.aeinfinitycell.recipe.ModRecipeLoader;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.WorldEvent;
 
 import appeng.api.AEApi;
 import cn.dancingsnow.aeinfinitycell.ae.InfinityCellHandler;
 import cn.dancingsnow.aeinfinitycell.item.ModItems;
+import cn.dancingsnow.aeinfinitycell.recipe.ModRecipeLoader;
 import cn.dancingsnow.aeinfinitycell.storage.InfinityCellDataAccess;
 import cn.dancingsnow.aeinfinitycell.storage.InfinityCellStorage;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
