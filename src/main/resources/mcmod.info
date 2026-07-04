@@ -7,7 +7,7 @@
 		"version": "${modVersion}",
 		"mcversion": "${minecraftVersion}",
 		"url": "https://github.com/DancingSnow0517/AE2InfinityCell",
-		"updateUrl": "",
+		"updateUrl": "https://api.modrinth.com/updates/ae2infinitycell/forge_updates.json?forge=only",
 		"authorList": ["DancingSnow"],
 		"credits": "GT New Horizons, Applied Energistics 2, Thaumic Energistics, Thaumcraft, and Avaritia teams.",
 		"logoFile": "icon.png",
