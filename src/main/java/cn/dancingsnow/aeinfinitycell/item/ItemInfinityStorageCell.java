@@ -3,27 +3,42 @@ package cn.dancingsnow.aeinfinitycell.item;
 import java.util.List;
 import java.util.UUID;
 
+import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.IIcon;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 
 import cn.dancingsnow.aeinfinitycell.AEInfinityCell;
 import cn.dancingsnow.aeinfinitycell.storage.InfinityCellDataAccess;
 import cn.dancingsnow.aeinfinitycell.storage.InfinityCellRecord;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+import fox.spiteful.avaritia.render.IHaloRenderItem;
 
-public final class ItemInfinityStorageCell extends Item {
+public final class ItemInfinityStorageCell extends Item implements IHaloRenderItem {
 
     private static final String TAG_ROOT = AEInfinityCell.MODID;
     private static final String TAG_STORAGE_ID = "storageId";
+
+    public IIcon halo;
 
     public ItemInfinityStorageCell() {
         setUnlocalizedName(AEInfinityCell.MODID + ".infinity_storage_cell");
         setTextureName(AEInfinityCell.MODID + ":infinity_storage_cell");
         setMaxStackSize(1);
         setCreativeTab(CreativeTabs.tabMisc);
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void registerIcons(IIconRegister register) {
+        super.registerIcons(register);
+
+        halo = register.registerIcon("avaritia:halo");
     }
 
     @Override
@@ -93,5 +108,30 @@ public final class ItemInfinityStorageCell extends Item {
             stack.stackTagCompound.setTag(TAG_ROOT, new NBTTagCompound());
         }
         return stack.stackTagCompound.getCompoundTag(TAG_ROOT);
+    }
+
+    @Override
+    public boolean drawHalo(ItemStack stack) {
+        return true;
+    }
+
+    @Override
+    public IIcon getHaloTexture(ItemStack stack) {
+        return halo;
+    }
+
+    @Override
+    public int getHaloSize(ItemStack stack) {
+        return 10;
+    }
+
+    @Override
+    public boolean drawPulseEffect(ItemStack stack) {
+        return true;
+    }
+
+    @Override
+    public int getHaloColour(ItemStack stack) {
+        return 0xFF000000;
     }
 }

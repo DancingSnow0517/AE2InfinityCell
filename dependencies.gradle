@@ -38,5 +38,9 @@ dependencies {
     api(gtnh290.GT5Unofficial) { artifact { classifier = "dev" } }
     api(gtnh290.appliedEnergistics2Unofficial) { artifact { classifier = "dev" } }
     api(gtnh290.thaumicEnergistics) { artifact { classifier = "dev" } }
+    api(gtnh290.avaritia) { artifact { classifier = "dev" } }
+
+    runtimeOnlyNonPublishable(gtnh290.angelica) { artifact { classifier = "dev" } }
+
     testImplementation("junit:junit:4.13.2")
 }
