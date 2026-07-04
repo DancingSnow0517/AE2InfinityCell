@@ -1,5 +1,6 @@
 package cn.dancingsnow.aeinfinitycell;
 
+import cn.dancingsnow.aeinfinitycell.recipe.ModRecipeLoader;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.WorldEvent;
 
@@ -33,7 +34,9 @@ public class CommonProxy {
         MinecraftForge.EVENT_BUS.register(this);
     }
 
-    public void postInit(FMLPostInitializationEvent event) {}
+    public void postInit(FMLPostInitializationEvent event) {
+        ModRecipeLoader.loadRecipes();
+    }
 
     public void serverStarting(FMLServerStartingEvent event) {
         ServerWorldAccess.setServer(event.getServer());
