@@ -6,6 +6,7 @@ import net.minecraftforge.event.world.WorldEvent;
 import appeng.api.AEApi;
 import cn.dancingsnow.aeinfinitycell.ae.InfinityCellHandler;
 import cn.dancingsnow.aeinfinitycell.item.ModItems;
+import cn.dancingsnow.aeinfinitycell.nei.NEIHandlerInfoRegistration;
 import cn.dancingsnow.aeinfinitycell.recipe.ModRecipeLoader;
 import cn.dancingsnow.aeinfinitycell.storage.InfinityCellDataAccess;
 import cn.dancingsnow.aeinfinitycell.storage.InfinityCellStorage;
@@ -31,6 +32,7 @@ public class CommonProxy {
             .registries()
             .cell()
             .addCellHandler(new InfinityCellHandler());
+        NEIHandlerInfoRegistration.sendCellViewHandlerInfo();
         MinecraftForge.EVENT_BUS.register(this);
     }
 
