@@ -1,5 +1,7 @@
 # AE2 Infinity Cell
 
+Languages: [English](README.md) | [简体中文](README.zh_CN.md)
+
 AE2 Infinity Cell adds a single Applied Energistics 2 storage cell for
 Minecraft 1.7.10 / GTNH-era modpacks. The cell mounts item, fluid, and essentia
 storage channels in AE2 drives while keeping the actual contents in
@@ -16,6 +18,8 @@ the item stack.
   mod's saved-data storage.
 - Copied cells keep the same UUID and intentionally share the same backing
   inventory inside that save.
+- NEI cell-view integration that previews the largest stored item, fluid, and
+  essentia entries without dumping every stored type into the UI.
 
 ## Requirements
 
@@ -27,9 +31,14 @@ Runtime dependencies:
 - Thaumic Energistics
 - Thaumcraft
 - Avaritia
+- GregTech 5 Unofficial
 
 The development workspace also uses the GTNH Gradle convention plugin and GTNH
 dependency catalog entries.
+
+Optional integrations:
+
+- NotEnoughItems - enables the Infinity Cell View usage page.
 
 ## Usage Notes
 
@@ -44,6 +53,10 @@ record unless the external saved data is moved too.
 
 This repository currently registers the item and assets, but does not define a
 crafting recipe.
+
+When NotEnoughItems is installed, NEI can show an Infinity Cell View for the
+cell. Each channel is displayed on its own page, sorted by stored amount, with
+the number of entries per channel limited by configuration.
 
 ## Building
 
@@ -75,9 +88,11 @@ Useful focused checks:
   channel-specific inventory handlers.
 - `src/main/java/cn/dancingsnow/aeinfinitycell/storage` - external storage
   records, keys, and saved-data access.
+- `src/main/java/cn/dancingsnow/aeinfinitycell/nei` - NEI cell-view preview and
+  handler registration.
 - `src/main/resources/assets/aeinfinitycell` - item language and texture assets.
 - `src/test/java/cn/dancingsnow/aeinfinitycell` - focused storage tests.
 
 ## License
 
-See the bundled `LICENSE` file for the packaged license text.
+See the bundled `LICENSE-template` file for the packaged license text.
