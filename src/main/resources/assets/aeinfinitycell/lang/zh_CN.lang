@@ -1,0 +1,6 @@
+item.aeinfinitycell.infinity_storage_cell.name=无限存储元件
+tooltip.aeinfinitycell.infinity_storage_cell=在此世界存档中存储无限数量的物品和流体类型。
+nei.aeinfinitycell.infinity_cell_view=无限存储元件视图
+nei.aeinfinitycell.channel.items=物品
+nei.aeinfinitycell.channel.fluids=流体
+nei.aeinfinitycell.channel.essentia=源质
