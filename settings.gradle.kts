@@ -22,6 +22,6 @@ plugins {
 
 `gtnh-catalog` {
     create("gtnh290") {
-        version = "2.9.0-beta-1"
+        version = "2.9.0-beta-2"
     }
 }
