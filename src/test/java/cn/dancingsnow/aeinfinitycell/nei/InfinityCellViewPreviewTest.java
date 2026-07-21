@@ -54,6 +54,7 @@ public class InfinityCellViewPreviewTest {
             record.addFluid(fluidKey("fluid_" + i), i);
             record.addEssentia(essentiaKey("aspect_" + i), i);
         }
+        record.addEU(1000L);
 
         assertEquals(
             63,
@@ -66,6 +67,10 @@ public class InfinityCellViewPreviewTest {
         assertEquals(
             63,
             InfinityCellViewPreview.essentia(record, 63)
+                .size());
+        assertEquals(
+            1,
+            InfinityCellViewPreview.eu(record, 63)
                 .size());
     }
 
@@ -100,10 +105,11 @@ public class InfinityCellViewPreviewTest {
         InfinityCellRecord record = new InfinityCellRecord();
         record.addFluid(fluidKey("steam"), 1000L);
         record.addEssentia(essentiaKey("aer"), 10L);
+        record.addEU(500L);
 
         List<InfinityCellViewPreview.Page> pages = InfinityCellViewPreview.pages(record, 63);
 
-        assertEquals(2, pages.size());
+        assertEquals(3, pages.size());
         assertEquals(
             InfinityCellViewPreview.Channel.FLUIDS,
             pages.get(0)
@@ -111,6 +117,10 @@ public class InfinityCellViewPreviewTest {
         assertEquals(
             InfinityCellViewPreview.Channel.ESSENTIA,
             pages.get(1)
+                .getChannel());
+        assertEquals(
+            InfinityCellViewPreview.Channel.EU,
+            pages.get(2)
                 .getChannel());
         assertEquals(
             1L,
@@ -121,6 +131,12 @@ public class InfinityCellViewPreviewTest {
             pages.get(0)
                 .getEntries()
                 .size());
+        assertEquals(
+            BigInteger.valueOf(500L),
+            pages.get(2)
+                .getEntries()
+                .get(0)
+                .getAmount());
     }
 
     private static ItemStackKey itemKey(String id, int damage) {

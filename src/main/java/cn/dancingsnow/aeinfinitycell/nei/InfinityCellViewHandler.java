@@ -25,6 +25,9 @@ import net.minecraftforge.fluids.FluidStack;
 import org.lwjgl.opengl.GL11;
 
 import appeng.api.config.TerminalFontSize;
+import appeng.api.storage.data.AEStackTypeRegistry;
+import appeng.api.storage.data.IAEStack;
+import appeng.api.storage.data.IAEStackType;
 import appeng.client.render.StackSizeRenderer;
 import appeng.core.localization.GuiText;
 import cn.dancingsnow.aeinfinitycell.Config;
@@ -48,6 +51,7 @@ import thaumicenergistics.common.storage.AEEssentiaStack;
 
 public final class InfinityCellViewHandler implements IUsageHandler {
 
+    private static final String EU_STACK_TYPE_ID = "appeu.eu";
     private static final ResourceLocation SLOT_TEXTURE_LOCATION = new ResourceLocation("nei", "textures/slot.png");
     private static final int OFFSET_X = 2;
     private static final int INFO_OFFSET_Y = 4;
@@ -55,15 +59,14 @@ public final class InfinityCellViewHandler implements IUsageHandler {
     private static final int ROW_ITEM_NUM = 9;
     private static final String HIDE_FLUID_DISPLAY_STACK_SIZE_TAG = "mHideStackSize";
 
-    private final List<ViewPage> pages = new ArrayList<ViewPage>();
+    private final List<ViewPage> pages = new ArrayList<>();
 
     @Override
     public IUsageHandler getUsageHandler(String inputId, Object... ingredients) {
-        if (ingredients.length == 0 || !(ingredients[0] instanceof ItemStack)) {
+        if (ingredients.length == 0 || !(ingredients[0] instanceof ItemStack ingredient)) {
             return null;
         }
 
-        ItemStack ingredient = (ItemStack) ingredients[0];
         if (!(ingredient.getItem() instanceof ItemInfinityStorageCell)) {
             return null;
         }
@@ -86,7 +89,7 @@ public final class InfinityCellViewHandler implements IUsageHandler {
     }
 
     private void addPage(Page page) {
-        List<ViewItemStack> stacks = new ArrayList<ViewItemStack>();
+        List<ViewItemStack> stacks = new ArrayList<>();
         for (Entry<?> entry : page.getEntries()) {
             ViewItemStack viewStack = createViewStack(page.getChannel(), entry, stacks.size());
             if (viewStack != null) {
@@ -128,6 +131,11 @@ public final class InfinityCellViewHandler implements IUsageHandler {
         if (channel == Channel.ESSENTIA) {
             AEEssentiaStack essentiaStack = ((EssentiaStackKey) entry.getKey()).toStack(1L);
             return essentiaStack == null ? null : essentiaStack.getItemStackForNEI();
+        }
+        if (channel == Channel.EU) {
+            IAEStackType<?> stackType = AEStackTypeRegistry.getType(EU_STACK_TYPE_ID);
+            IAEStack<?> stack = stackType == null ? null : stackType.getTestStack();
+            return stack == null ? null : stack.getItemStackForNEI();
         }
         return null;
     }
@@ -325,7 +333,7 @@ public final class InfinityCellViewHandler implements IUsageHandler {
     public List<PositionedStack> getOtherStacks(int recipe) {
         ViewPage page = page(recipe);
         if (page == null) {
-            return new ArrayList<PositionedStack>();
+            return new ArrayList<>();
         }
         return page.stacks.stream()
             .map(stack -> stack.stack)

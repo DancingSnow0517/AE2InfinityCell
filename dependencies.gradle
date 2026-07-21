@@ -43,6 +43,8 @@ dependencies {
     api(gtnh290.avaritia) { artifact { classifier = "dev" } }
     api(gtnh290.eternalSingularity) { artifact { classifier = "dev" } }
 
+    devOnlyNonPublishable("cn.dancingsnow.appeu:appeu:1.0.0:dev")
+
     runtimeOnlyNonPublishable(rfg.deobf("curse.maven:thaumcraft-nei-plugin-225095:2241913"))
     runtimeOnlyNonPublishable(gtnh290.angelica) { artifact { classifier = "dev" } }
 

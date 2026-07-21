@@ -16,14 +16,16 @@ public final class InfinityCellRecord {
     private static final String KEY_ITEMS = "items";
     private static final String KEY_FLUIDS = "fluids";
     private static final String KEY_ESSENTIA = "essentia";
+    private static final String KEY_EU = "eu";
     private static final String KEY_AMOUNT = "amount";
 
     private static final BigInteger BIG_ZERO = BigInteger.ZERO;
     private static final BigInteger BIG_LONG_MAX = BigInteger.valueOf(Long.MAX_VALUE);
 
-    private final Map<ItemStackKey, BigInteger> items = new LinkedHashMap<ItemStackKey, BigInteger>();
-    private final Map<FluidStackKey, BigInteger> fluids = new LinkedHashMap<FluidStackKey, BigInteger>();
-    private final Map<EssentiaStackKey, BigInteger> essentia = new LinkedHashMap<EssentiaStackKey, BigInteger>();
+    private final Map<ItemStackKey, BigInteger> items = new LinkedHashMap<>();
+    private final Map<FluidStackKey, BigInteger> fluids = new LinkedHashMap<>();
+    private final Map<EssentiaStackKey, BigInteger> essentia = new LinkedHashMap<>();
+    private BigInteger eu = BIG_ZERO;
 
     public long getItemAmount(ItemStackKey key) {
         return clampToLong(amount(items, key));
@@ -35,6 +37,14 @@ public final class InfinityCellRecord {
 
     public long getEssentiaAmount(EssentiaStackKey key) {
         return clampToLong(amount(essentia, key));
+    }
+
+    public long getEUAmount() {
+        return clampToLong(eu);
+    }
+
+    public BigInteger getEUAmountExact() {
+        return eu;
     }
 
     public void addItem(ItemStackKey key, long amount) {
@@ -61,6 +71,16 @@ public final class InfinityCellRecord {
         add(essentia, key, amount);
     }
 
+    public void addEU(long amount) {
+        addEU(BigInteger.valueOf(amount));
+    }
+
+    public void addEU(BigInteger amount) {
+        if (amount != null && amount.signum() > 0) {
+            eu = eu.add(amount);
+        }
+    }
+
     public long removeItem(ItemStackKey key, long requested) {
         return remove(items, key, requested);
     }
@@ -71,6 +91,15 @@ public final class InfinityCellRecord {
 
     public long removeEssentia(EssentiaStackKey key, long requested) {
         return remove(essentia, key, requested);
+    }
+
+    public long removeEU(long requested) {
+        if (requested <= 0L) {
+            return 0L;
+        }
+        BigInteger extracted = eu.min(BigInteger.valueOf(requested));
+        eu = eu.subtract(extracted);
+        return clampToLong(extracted);
     }
 
     public Map<ItemStackKey, BigInteger> getItemsView() {
@@ -97,6 +126,10 @@ public final class InfinityCellRecord {
         return essentia.size();
     }
 
+    public long getUsedEUTypes() {
+        return eu.signum() > 0 ? 1L : 0L;
+    }
+
     public long getStoredItemUnits() {
         return clampToLong(sum(items));
     }
@@ -109,11 +142,16 @@ public final class InfinityCellRecord {
         return clampToLong(sum(essentia));
     }
 
+    public long getStoredEUUnits() {
+        return clampToLong(eu);
+    }
+
     public NBTTagCompound writeToNBT() {
         NBTTagCompound tag = new NBTTagCompound();
         tag.setTag(KEY_ITEMS, writeItems());
         tag.setTag(KEY_FLUIDS, writeFluids());
         tag.setTag(KEY_ESSENTIA, writeEssentia());
+        tag.setString(KEY_EU, eu.toString());
         return tag;
     }
 
@@ -121,6 +159,7 @@ public final class InfinityCellRecord {
         items.clear();
         fluids.clear();
         essentia.clear();
+        eu = readAmount(tag, KEY_EU);
         readItems(tag.getTagList(KEY_ITEMS, 10));
         readFluids(tag.getTagList(KEY_FLUIDS, 10));
         readEssentia(tag.getTagList(KEY_ESSENTIA, 10));
@@ -262,11 +301,16 @@ public final class InfinityCellRecord {
     }
 
     private static BigInteger readAmount(NBTTagCompound tag) {
-        if (!tag.hasKey(KEY_AMOUNT, 8)) {
+        return readAmount(tag, KEY_AMOUNT);
+    }
+
+    private static BigInteger readAmount(NBTTagCompound tag, String key) {
+        if (!tag.hasKey(key, 8)) {
             return BIG_ZERO;
         }
         try {
-            return new BigInteger(tag.getString(KEY_AMOUNT));
+            BigInteger amount = new BigInteger(tag.getString(key));
+            return amount.signum() > 0 ? amount : BIG_ZERO;
         } catch (NumberFormatException ignored) {
             return BIG_ZERO;
         }

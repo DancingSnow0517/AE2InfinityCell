@@ -1,5 +1,8 @@
 package cn.dancingsnow.aeinfinitycell.ae;
 
+import java.util.IdentityHashMap;
+import java.util.Map;
+
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIcon;
@@ -18,13 +21,22 @@ import thaumicenergistics.common.storage.AEEssentiaStackType;
 
 public final class InfinityCellHandler implements ICellHandler {
 
+    private final Map<IAEStackType<?>, InfinityCellChannelSupport> channelSupports = new IdentityHashMap<>();
+
+    public void addChannelSupport(InfinityCellChannelSupport support) {
+        if (support == null || support.getStackType() == null) {
+            throw new IllegalArgumentException("Channel support and stack type must not be null");
+        }
+        channelSupports.put(support.getStackType(), support);
+    }
+
     @Override
     public boolean isCell(ItemStack is) {
         return is != null && is.getItem() instanceof ItemInfinityStorageCell;
     }
 
     @Override
-    public IMEInventoryHandler getCellInventory(ItemStack is, ISaveProvider host, IAEStackType<?> type) {
+    public IMEInventoryHandler<?> getCellInventory(ItemStack is, ISaveProvider host, IAEStackType<?> type) {
         if (!isCell(is)) {
             return null;
         }
@@ -37,7 +49,8 @@ public final class InfinityCellHandler implements ICellHandler {
         if (type == AEEssentiaStackType.ESSENTIA_STACK_TYPE) {
             return new InfinityEssentiaInventoryHandler(is, host);
         }
-        return null;
+        InfinityCellChannelSupport support = channelSupports.get(type);
+        return support == null ? null : support.createInventory(is, host);
     }
 
     @Override
@@ -61,8 +74,8 @@ public final class InfinityCellHandler implements ICellHandler {
 
     @Override
     public int getStatusForCell(ItemStack is, IMEInventory handler) {
-        if (handler instanceof AbstractInfinityInventoryHandler) {
-            return ((AbstractInfinityInventoryHandler) handler).getCellStatus();
+        if (handler instanceof AbstractInfinityInventoryHandler<?>) {
+            return ((AbstractInfinityInventoryHandler<?>) handler).getCellStatus();
         }
         return 1;
     }

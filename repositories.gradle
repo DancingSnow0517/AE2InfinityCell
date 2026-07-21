@@ -1,5 +1,11 @@
 // Add any additional repositories for your dependencies here.
 
 repositories {
-
+    maven {
+        url = uri("https://maven.pkg.github.com/dancingsnow0517/applied-energistics-eu-network")
+        credentials {
+            username = findProperty("gpr.user") ?: System.getenv("GITHUB_ACTOR")
+            password = findProperty("gpr.key") ?: System.getenv("GITHUB_TOKEN")
+        }
+    }
 }

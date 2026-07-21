@@ -3,8 +3,8 @@
 Languages: [English](README.md) | [简体中文](README.zh_CN.md)
 
 AE2 Infinity Cell adds a single Applied Energistics 2 storage cell for
-Minecraft 1.7.10 / GTNH-era modpacks. The cell mounts item, fluid, and essentia
-storage channels in AE2 drives while keeping the actual contents in
+Minecraft 1.7.10 / GTNH-era modpacks. The cell mounts item, fluid, essentia,
+and optional AppEU energy storage channels in AE2 drives while keeping the actual contents in
 save-scoped external storage instead of writing a large inventory directly into
 the item stack.
 
@@ -12,14 +12,15 @@ the item stack.
 
 - One `Infinity Storage Cell` item for AE2 storage systems.
 - Item, fluid, and Thaumic Energistics essentia channel support.
+- Optional AppEU `EUStackType` support when Applied Energistics: EU Network is installed.
 - Effectively unlimited storage capacity and type count from AE2's point of view.
 - Lightweight item NBT: the cell stores only a UUID reference.
 - Contents are persisted in the current world save and written through the
   mod's saved-data storage.
 - Copied cells keep the same UUID and intentionally share the same backing
   inventory inside that save.
-- NEI cell-view integration that previews the largest stored item, fluid, and
-  essentia entries without dumping every stored type into the UI.
+- NEI cell-view integration that previews stored item, fluid, essentia, and EU
+  entries without dumping every stored type into the UI.
 
 ## Requirements
 
@@ -39,12 +40,14 @@ dependency catalog entries.
 Optional integrations:
 
 - NotEnoughItems - enables the Infinity Cell View usage page.
+- Applied Energistics: EU Network (`appeu`) - enables unlimited EU storage.
 
 ## Usage Notes
 
 Place the Infinity Storage Cell in an AE2 drive or compatible AE storage host.
 AE2 will ask the custom cell handler for the requested channel and the cell will
-serve item, fluid, or essentia storage from the same backing record.
+serve item, fluid, or essentia storage from the same backing record. When AppEU
+is installed, the same cell also serves its registered EU stack type.
 
 The backing storage is scoped to the Minecraft save. Copying the item stack
 within the same save copies the UUID and shares the same contents. Moving a cell

@@ -82,6 +82,27 @@ public class InfinityCellRecordTest {
     }
 
     @Test
+    public void euAmountRoundTripsThroughNbtBeyondLongMax() {
+        InfinityCellRecord record = new InfinityCellRecord();
+        BigInteger amount = BigInteger.valueOf(Long.MAX_VALUE)
+            .add(BigInteger.valueOf(123L));
+
+        record.addEU(amount);
+
+        InfinityCellRecord loaded = new InfinityCellRecord();
+        NBTTagCompound serialized = record.writeToNBT();
+        loaded.readFromNBT(serialized);
+
+        assertEquals(Long.MAX_VALUE, loaded.getEUAmount());
+        assertEquals(amount, loaded.getEUAmountExact());
+        assertEquals(1L, loaded.getUsedEUTypes());
+        assertEquals(amount.toString(), serialized.getString("eu"));
+
+        assertEquals(Long.MAX_VALUE, loaded.removeEU(Long.MAX_VALUE));
+        assertEquals(BigInteger.valueOf(123L), loaded.getEUAmountExact());
+    }
+
+    @Test
     public void legacyLongAmountsAreIgnored() {
         InfinityCellRecord record = new InfinityCellRecord();
         ItemStackKey key = itemKey("minecraft:cobblestone", 0);

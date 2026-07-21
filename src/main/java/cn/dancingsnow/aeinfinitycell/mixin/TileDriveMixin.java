@@ -9,6 +9,7 @@ import net.minecraft.item.ItemStack;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -17,15 +18,13 @@ import appeng.api.storage.ICellHandler;
 import appeng.api.storage.IMEInventory;
 import appeng.api.storage.IMEInventoryHandler;
 import appeng.api.storage.ISaveProvider;
+import appeng.api.storage.data.AEStackTypeRegistry;
 import appeng.api.storage.data.IAEStackType;
 import appeng.me.storage.MEInventoryHandler;
 import appeng.tile.inventory.AppEngInternalInventory;
 import appeng.tile.storage.TileDrive;
-import appeng.util.item.AEFluidStackType;
-import appeng.util.item.AEItemStackType;
 import cn.dancingsnow.aeinfinitycell.ae.AbstractInfinityInventoryHandler;
 import cn.dancingsnow.aeinfinitycell.item.ItemInfinityStorageCell;
-import thaumicenergistics.common.storage.AEEssentiaStackType;
 
 @Mixin(value = TileDrive.class, remap = false)
 public abstract class TileDriveMixin {
@@ -40,14 +39,13 @@ public abstract class TileDriveMixin {
 
     @Shadow
     @Final
-    @SuppressWarnings("rawtypes")
-    private Map<IAEStackType<?>, List<IMEInventoryHandler>> cellsMap;
+    private Map<IAEStackType<?>, List<IMEInventoryHandler<?>>> cellsMap;
 
     @Shadow
     private int priority;
 
     @Inject(method = "updateState", at = @At("RETURN"))
-    private void aeinfinitycell$mountDualChannelInventories(CallbackInfo ci) {
+    private void aeinfinitycell$mountAllChannelInventories(CallbackInfo ci) {
         for (int slot = 0; slot < this.inv.getSizeInventory(); slot++) {
             ItemStack stack = this.inv.getStackInSlot(slot);
             if (stack == null || !(stack.getItem() instanceof ItemInfinityStorageCell)) {
@@ -59,18 +57,15 @@ public abstract class TileDriveMixin {
                 continue;
             }
 
-            this.aeinfinitycell$mountMissingHandler(stack, cellHandler, AEItemStackType.ITEM_STACK_TYPE);
-            this.aeinfinitycell$mountMissingHandler(stack, cellHandler, AEFluidStackType.FLUID_STACK_TYPE);
-            this.aeinfinitycell$mountMissingHandler(stack, cellHandler, AEEssentiaStackType.ESSENTIA_STACK_TYPE);
+            for (IAEStackType<?> type : AEStackTypeRegistry.getAllTypes()) {
+                this.aeinfinitycell$mountMissingHandler(stack, cellHandler, type);
+            }
         }
     }
 
+    @Unique
     private void aeinfinitycell$mountMissingHandler(ItemStack stack, ICellHandler cellHandler, IAEStackType<?> type) {
-        List<IMEInventoryHandler> handlers = this.cellsMap.get(type);
-        if (handlers == null) {
-            handlers = new ArrayList<>();
-            this.cellsMap.put(type, handlers);
-        }
+        List<IMEInventoryHandler<?>> handlers = this.cellsMap.computeIfAbsent(type, k -> new ArrayList<>());
         if (this.aeinfinitycell$hasMountedHandler(handlers, stack)) {
             return;
         }
@@ -85,8 +80,9 @@ public abstract class TileDriveMixin {
         handlers.add(mounted);
     }
 
-    private boolean aeinfinitycell$hasMountedHandler(List<IMEInventoryHandler> handlers, ItemStack stack) {
-        for (IMEInventoryHandler handler : handlers) {
+    @Unique
+    private boolean aeinfinitycell$hasMountedHandler(List<? extends IMEInventoryHandler<?>> handlers, ItemStack stack) {
+        for (IMEInventoryHandler<?> handler : handlers) {
             if (this.aeinfinitycell$isHandlerForStack(handler, stack)) {
                 return true;
             }
@@ -101,9 +97,10 @@ public abstract class TileDriveMixin {
         return false;
     }
 
-    private boolean aeinfinitycell$isHandlerForStack(IMEInventoryHandler handler, ItemStack stack) {
-        if (handler instanceof AbstractInfinityInventoryHandler) {
-            return ((AbstractInfinityInventoryHandler) handler).isForCellStack(stack);
+    @Unique
+    private boolean aeinfinitycell$isHandlerForStack(IMEInventoryHandler<?> handler, ItemStack stack) {
+        if (handler instanceof AbstractInfinityInventoryHandler<?>infinityInventoryHandler) {
+            return infinityInventoryHandler.isForCellStack(stack);
         }
         return false;
     }

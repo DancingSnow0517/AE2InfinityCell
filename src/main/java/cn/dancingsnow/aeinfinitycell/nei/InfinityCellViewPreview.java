@@ -3,7 +3,6 @@ package cn.dancingsnow.aeinfinitycell.nei;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -14,23 +13,29 @@ import cn.dancingsnow.aeinfinitycell.storage.ItemStackKey;
 
 public final class InfinityCellViewPreview {
 
-    public static final int DEFAULT_ENTRIES_PER_CHANNEL = 63;
-
     private static final BigInteger BIG_LONG_MAX = BigInteger.valueOf(Long.MAX_VALUE);
 
     private InfinityCellViewPreview() {}
 
     public static List<Entry<ItemStackKey>> items(InfinityCellRecord record, int limit) {
-        return record == null ? Collections.<Entry<ItemStackKey>>emptyList() : select(record.getItemsView(), limit);
+        return record == null ? Collections.emptyList() : select(record.getItemsView(), limit);
     }
 
     public static List<Entry<FluidStackKey>> fluids(InfinityCellRecord record, int limit) {
-        return record == null ? Collections.<Entry<FluidStackKey>>emptyList() : select(record.getFluidsView(), limit);
+        return record == null ? Collections.emptyList() : select(record.getFluidsView(), limit);
     }
 
     public static List<Entry<EssentiaStackKey>> essentia(InfinityCellRecord record, int limit) {
-        return record == null ? Collections.<Entry<EssentiaStackKey>>emptyList()
-            : select(record.getEssentiaView(), limit);
+        return record == null ? Collections.emptyList() : select(record.getEssentiaView(), limit);
+    }
+
+    public static List<Entry<Void>> eu(InfinityCellRecord record, int limit) {
+        if (record == null || limit <= 0
+            || record.getEUAmountExact()
+                .signum() <= 0) {
+            return Collections.emptyList();
+        }
+        return Collections.singletonList(new Entry<>(null, record.getEUAmountExact()));
     }
 
     public static List<Page> pages(InfinityCellRecord record, int limit) {
@@ -38,7 +43,7 @@ public final class InfinityCellViewPreview {
             return Collections.emptyList();
         }
 
-        List<Page> pages = new ArrayList<Page>();
+        List<Page> pages = new ArrayList<>();
         List<Entry<ItemStackKey>> itemEntries = items(record, limit);
         if (!itemEntries.isEmpty()) {
             pages.add(new Page(Channel.ITEMS, itemEntries, record.getUsedItemTypes()));
@@ -53,6 +58,11 @@ public final class InfinityCellViewPreview {
         if (!essentiaEntries.isEmpty()) {
             pages.add(new Page(Channel.ESSENTIA, essentiaEntries, record.getUsedEssentiaTypes()));
         }
+
+        List<Entry<Void>> euEntries = eu(record, limit);
+        if (!euEntries.isEmpty()) {
+            pages.add(new Page(Channel.EU, euEntries, record.getUsedEUTypes()));
+        }
         return pages;
     }
 
@@ -61,24 +71,18 @@ public final class InfinityCellViewPreview {
             return Collections.emptyList();
         }
 
-        List<Entry<K>> entries = new ArrayList<Entry<K>>();
+        List<Entry<K>> entries = new ArrayList<>();
         for (Map.Entry<K, BigInteger> sourceEntry : source.entrySet()) {
             BigInteger amount = sourceEntry.getValue();
             if (amount != null && amount.signum() > 0) {
-                entries.add(new Entry<K>(sourceEntry.getKey(), amount));
+                entries.add(new Entry<>(sourceEntry.getKey(), amount));
             }
         }
 
-        Collections.sort(entries, new Comparator<Entry<K>>() {
-
-            @Override
-            public int compare(Entry<K> left, Entry<K> right) {
-                return right.amount.compareTo(left.amount);
-            }
-        });
+        entries.sort((left, right) -> right.amount.compareTo(left.amount));
 
         if (entries.size() > limit) {
-            return new ArrayList<Entry<K>>(entries.subList(0, limit));
+            return new ArrayList<>(entries.subList(0, limit));
         }
         return entries;
     }
@@ -87,7 +91,8 @@ public final class InfinityCellViewPreview {
 
         ITEMS("nei.aeinfinitycell.channel.items"),
         FLUIDS("nei.aeinfinitycell.channel.fluids"),
-        ESSENTIA("nei.aeinfinitycell.channel.essentia");
+        ESSENTIA("nei.aeinfinitycell.channel.essentia"),
+        EU("nei.aeinfinitycell.channel.eu");
 
         private final String translationKey;
 

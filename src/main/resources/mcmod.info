@@ -3,13 +3,13 @@
 	"modList": [{
 		"modid": "${modId}",
 		"name": "${modName}",
-		"description": "Adds an AE2 infinity storage cell for GTNH-era Minecraft 1.7.10 packs. The cell mounts item, fluid, and essentia storage channels in AE2 drives and keeps the actual contents in save-scoped external storage so the item stack stays lightweight.",
+		"description": "Adds an AE2 infinity storage cell for GTNH-era Minecraft 1.7.10 packs. The cell mounts item, fluid, essentia, and optional AppEU energy storage channels in AE2 drives and keeps the actual contents in save-scoped external storage so the item stack stays lightweight.",
 		"version": "${modVersion}",
 		"mcversion": "${minecraftVersion}",
 		"url": "https://github.com/DancingSnow0517/AE2InfinityCell",
 		"updateUrl": "https://api.modrinth.com/updates/ae2infinitycell/forge_updates.json?forge=only",
 		"authorList": ["DancingSnow"],
-		"credits": "GT New Horizons, Applied Energistics 2, Thaumic Energistics, Thaumcraft, and Avaritia teams.",
+		"credits": "GT New Horizons, Applied Energistics 2, Applied Energistics: EU Network, Thaumic Energistics, Thaumcraft, and Avaritia teams.",
 		"logoFile": "icon.png",
 		"screenshots": [],
 		"parent": "",
@@ -21,6 +21,7 @@
 		],
 		"dependencies": [
 			"appliedenergistics2",
+			"appeu",
 			"thaumicenergistics",
 			"Thaumcraft",
 			"Avaritia"

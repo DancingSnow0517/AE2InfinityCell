@@ -3,18 +3,19 @@
 语言：[English](README.md) | [简体中文](README.zh_CN.md)
 
 AE2 Infinity Cell 为 Minecraft 1.7.10 / GTNH 时代整合包添加了一个 Applied
-Energistics 2 存储元件。这个元件可以在 AE2 硬盘中挂载物品、流体和源质存储通道，但实际内容保存在当前世界存档的外部存储数据里，而不是把庞大的库存直接写进物品
+Energistics 2 存储元件。这个元件可以在 AE2 硬盘中挂载物品、流体、源质，以及可选的 AppEU 能量存储通道，但实际内容保存在当前世界存档的外部存储数据里，而不是把庞大的库存直接写进物品
 NBT。
 
 ## 功能
 
 - 一个面向 AE2 存储系统的 `Infinity Storage Cell` 物品。
 - 支持物品、流体和 Thaumic Energistics 源质通道。
+- 安装 Applied Energistics: EU Network 后，可选支持 AppEU 的 `EUStackType`。
 - 从 AE2 视角提供近似无限的容量和类型数量。
 - 轻量物品 NBT：元件自身只保存一个 UUID 引用。
 - 内容持久化在当前世界存档中，并通过本 Mod 的 saved-data 存储写入。
 - 复制元件会保留相同 UUID，并在同一存档中有意共享同一份后端库存。
-- 提供 NEI 元件查看页面，按数量预览存储最多的物品、流体和源质条目，而不是把所有类型都塞进 UI。
+- 提供 NEI 元件查看页面，预览物品、流体、源质和 EU 存储内容，而不是把所有类型都塞进 UI。
 
 ## 需求
 
@@ -33,10 +34,11 @@ NBT。
 可选集成：
 
 - NotEnoughItems - 启用 Infinity Cell View 使用页面。
+- Applied Energistics: EU Network（`appeu`）- 启用无限 EU 存储。
 
 ## 使用说明
 
-把 Infinity Storage Cell 放入 AE2 硬盘或兼容的 AE 存储主机。AE2 请求对应通道时，自定义元件 handler 会从同一份后端记录中提供物品、流体或源质存储。
+把 Infinity Storage Cell 放入 AE2 硬盘或兼容的 AE 存储主机。AE2 请求对应通道时，自定义元件 handler 会从同一份后端记录中提供物品、流体或源质存储。安装 AppEU 后，同一个元件也会提供其注册的 EU stack type。
 
 后端存储只属于当前 Minecraft 存档。在同一存档中复制物品栈会复制 UUID，并共享同一份内容。把带 NBT 的元件移动到另一个存档只会带走 UUID 字符串；除非同时移动外部 saved-data 记录，否则不会带走已存储内容。
 
