@@ -23,17 +23,19 @@ public class InfinityCellRecordTest {
             BigInteger.valueOf(Long.MAX_VALUE)
                 .add(BigInteger.ONE),
             record.getItemsView()
-                .get(key));
+                .get(key)
+                .toBigInteger());
     }
 
     @Test
-    public void bigIntegerAmountsRoundTripThroughNbt() {
+    public void bigAmountsRoundTripThroughNbt() {
         InfinityCellRecord record = new InfinityCellRecord();
         ItemStackKey key = itemKey("minecraft:dirt", 0);
         BigInteger amount = BigInteger.valueOf(Long.MAX_VALUE)
             .add(BigInteger.valueOf(42L));
 
-        record.addItem(key, amount);
+        record.addItem(key, Long.MAX_VALUE);
+        record.addItem(key, 42L);
 
         InfinityCellRecord loaded = new InfinityCellRecord();
         NBTTagCompound serialized = record.writeToNBT();
@@ -43,7 +45,8 @@ public class InfinityCellRecordTest {
         assertEquals(
             amount,
             loaded.getItemsView()
-                .get(key));
+                .get(key)
+                .toBigInteger());
         assertEquals(
             amount.toString(),
             serialized.getTagList("items", 10)
@@ -58,7 +61,8 @@ public class InfinityCellRecordTest {
         BigInteger amount = BigInteger.valueOf(Long.MAX_VALUE)
             .add(BigInteger.valueOf(99L));
 
-        record.addEssentia(key, amount);
+        record.addEssentia(key, Long.MAX_VALUE);
+        record.addEssentia(key, 99L);
 
         InfinityCellRecord loaded = new InfinityCellRecord();
         NBTTagCompound serialized = record.writeToNBT();
@@ -68,7 +72,8 @@ public class InfinityCellRecordTest {
         assertEquals(
             amount,
             loaded.getEssentiaView()
-                .get(key));
+                .get(key)
+                .toBigInteger());
         assertEquals(
             "aer",
             serialized.getTagList("essentia", 10)
@@ -87,19 +92,40 @@ public class InfinityCellRecordTest {
         BigInteger amount = BigInteger.valueOf(Long.MAX_VALUE)
             .add(BigInteger.valueOf(123L));
 
-        record.addEU(amount);
+        record.addEU(Long.MAX_VALUE);
+        record.addEU(123L);
 
         InfinityCellRecord loaded = new InfinityCellRecord();
         NBTTagCompound serialized = record.writeToNBT();
         loaded.readFromNBT(serialized);
 
         assertEquals(Long.MAX_VALUE, loaded.getEUAmount());
-        assertEquals(amount, loaded.getEUAmountExact());
+        assertEquals(
+            amount,
+            loaded.getEUCount()
+                .toBigInteger());
         assertEquals(1L, loaded.getUsedEUTypes());
         assertEquals(amount.toString(), serialized.getString("eu"));
 
-        assertEquals(Long.MAX_VALUE, loaded.removeEU(Long.MAX_VALUE));
-        assertEquals(BigInteger.valueOf(123L), loaded.getEUAmountExact());
+        assertEquals(Long.MAX_VALUE, loaded.extractEU(Long.MAX_VALUE, true));
+        assertEquals(
+            BigInteger.valueOf(123L),
+            loaded.getEUCount()
+                .toBigInteger());
+    }
+
+    @Test
+    public void extractRemovesEmptyEntriesFromViews() {
+        InfinityCellRecord record = new InfinityCellRecord();
+        ItemStackKey key = itemKey("minecraft:sand", 0);
+
+        record.addItem(key, 100L);
+        assertEquals(60L, record.extractItem(key, 60L, false));
+        assertEquals(100L, record.getItemAmount(key));
+        assertEquals(100L, record.extractItem(key, 200L, true));
+
+        assertEquals(0L, record.getItemAmount(key));
+        assertEquals(0L, record.getUsedItemTypes());
     }
 
     @Test

@@ -1,6 +1,5 @@
 package cn.dancingsnow.aeinfinitycell.ae;
 
-import java.math.BigInteger;
 import java.util.Map;
 
 import net.minecraft.item.ItemStack;
@@ -12,6 +11,7 @@ import appeng.api.storage.data.IAEItemStack;
 import appeng.api.storage.data.IItemList;
 import appeng.util.item.AEItemStack;
 import appeng.util.item.AEItemStackType;
+import cn.dancingsnow.aeinfinitycell.storage.CellCount;
 import cn.dancingsnow.aeinfinitycell.storage.InfinityCellRecord;
 import cn.dancingsnow.aeinfinitycell.storage.ItemStackKey;
 
@@ -37,15 +37,7 @@ public final class InfinityItemInventoryHandler extends AbstractInfinityInventor
     @Override
     protected long extract(InfinityCellRecord record, IAEItemStack request, long amount, boolean modulate) {
         ItemStackKey key = key(request);
-        if (key == null) {
-            return 0L;
-        }
-        long available = record.getItemAmount(key);
-        long extracted = Math.min(available, amount);
-        if (modulate && extracted > 0L) {
-            record.removeItem(key, extracted);
-        }
-        return extracted;
+        return key == null ? 0L : record.extractItem(key, amount, modulate);
     }
 
     @Override
@@ -56,9 +48,10 @@ public final class InfinityItemInventoryHandler extends AbstractInfinityInventor
 
     @Override
     protected void addAvailable(InfinityCellRecord record, IItemList<IAEItemStack> out) {
-        for (Map.Entry<ItemStackKey, BigInteger> entry : record.getItemsView()
+        for (Map.Entry<ItemStackKey, CellCount> entry : record.getItemsView()
             .entrySet()) {
-            long aeAmount = record.getItemAmount(entry.getKey());
+            long aeAmount = entry.getValue()
+                .longValue();
             ItemStack stack = entry.getKey()
                 .toStack(aeAmount);
             if (stack == null) {

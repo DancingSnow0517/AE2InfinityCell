@@ -23,11 +23,7 @@ public final class InfinityEUInventoryHandler extends AbstractInfinityInventoryH
 
     @Override
     protected long extract(InfinityCellRecord record, EUStack request, long amount, boolean modulate) {
-        long extracted = Math.min(record.getEUAmount(), amount);
-        if (modulate && extracted > 0L) {
-            record.removeEU(extracted);
-        }
-        return extracted;
+        return record.extractEU(amount, modulate);
     }
 
     @Override

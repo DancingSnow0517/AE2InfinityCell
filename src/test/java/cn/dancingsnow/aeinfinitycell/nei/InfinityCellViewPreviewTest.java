@@ -20,7 +20,7 @@ public class InfinityCellViewPreviewTest {
     public void itemPreviewSortsByAmountDescendingAndCapsToLimit() {
         InfinityCellRecord record = new InfinityCellRecord();
         for (int i = 1; i <= 70; i++) {
-            record.addItem(itemKey("test:item_" + i, i), BigInteger.valueOf(i));
+            record.addItem(itemKey("test:item_" + i, i), i);
         }
 
         List<InfinityCellViewPreview.Entry<ItemStackKey>> entries = InfinityCellViewPreview.items(record, 63);
@@ -34,7 +34,8 @@ public class InfinityCellViewPreviewTest {
         assertEquals(
             BigInteger.valueOf(70L),
             entries.get(0)
-                .getAmount());
+                .getAmount()
+                .toBigInteger());
         assertEquals(
             "test:item_8",
             entries.get(62)
@@ -43,7 +44,8 @@ public class InfinityCellViewPreviewTest {
         assertEquals(
             BigInteger.valueOf(8L),
             entries.get(62)
-                .getAmount());
+                .getAmount()
+                .toBigInteger());
     }
 
     @Test
@@ -80,12 +82,16 @@ public class InfinityCellViewPreviewTest {
         ItemStackKey key = itemKey("test:overflow", 0);
         BigInteger amount = BigInteger.valueOf(Long.MAX_VALUE)
             .add(BigInteger.ONE);
-        record.addItem(key, amount);
+        record.addItem(key, Long.MAX_VALUE);
+        record.addItem(key, 1L);
 
         InfinityCellViewPreview.Entry<ItemStackKey> entry = InfinityCellViewPreview.items(record, 63)
             .get(0);
 
-        assertEquals(amount, entry.getAmount());
+        assertEquals(
+            amount,
+            entry.getAmount()
+                .toBigInteger());
         assertEquals(Long.MAX_VALUE, entry.getStackSize());
     }
 
@@ -136,7 +142,8 @@ public class InfinityCellViewPreviewTest {
             pages.get(2)
                 .getEntries()
                 .get(0)
-                .getAmount());
+                .getAmount()
+                .toBigInteger());
     }
 
     private static ItemStackKey itemKey(String id, int damage) {

@@ -18,6 +18,6 @@ public final class AEInfinityCellLateMixins implements ILateMixinLoader {
 
     @Override
     public List<String> getMixins(Set<String> loadedMods) {
-        return Arrays.asList("TileDriveMixin");
+        return Arrays.asList("TileDriveMixin", "TileIOPortMixin");
     }
 }

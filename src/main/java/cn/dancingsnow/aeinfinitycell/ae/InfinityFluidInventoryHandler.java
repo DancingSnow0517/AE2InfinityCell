@@ -1,6 +1,5 @@
 package cn.dancingsnow.aeinfinitycell.ae;
 
-import java.math.BigInteger;
 import java.util.Map;
 
 import net.minecraft.item.ItemStack;
@@ -13,6 +12,7 @@ import appeng.api.storage.data.IAEFluidStack;
 import appeng.api.storage.data.IItemList;
 import appeng.util.item.AEFluidStack;
 import appeng.util.item.AEFluidStackType;
+import cn.dancingsnow.aeinfinitycell.storage.CellCount;
 import cn.dancingsnow.aeinfinitycell.storage.FluidStackKey;
 import cn.dancingsnow.aeinfinitycell.storage.InfinityCellRecord;
 
@@ -34,13 +34,7 @@ public final class InfinityFluidInventoryHandler extends AbstractInfinityInvento
 
     @Override
     protected long extract(InfinityCellRecord record, IAEFluidStack request, long amount, boolean modulate) {
-        FluidStackKey key = FluidStackKey.from(request.getFluidStack());
-        long available = record.getFluidAmount(key);
-        long extracted = Math.min(available, amount);
-        if (modulate && extracted > 0L) {
-            record.removeFluid(key, extracted);
-        }
-        return extracted;
+        return record.extractFluid(FluidStackKey.from(request.getFluidStack()), amount, modulate);
     }
 
     @Override
@@ -50,9 +44,10 @@ public final class InfinityFluidInventoryHandler extends AbstractInfinityInvento
 
     @Override
     protected void addAvailable(InfinityCellRecord record, IItemList<IAEFluidStack> out) {
-        for (Map.Entry<FluidStackKey, BigInteger> entry : record.getFluidsView()
+        for (Map.Entry<FluidStackKey, CellCount> entry : record.getFluidsView()
             .entrySet()) {
-            long aeAmount = record.getFluidAmount(entry.getKey());
+            long aeAmount = entry.getValue()
+                .longValue();
             FluidStack stack = entry.getKey()
                 .toStack(aeAmount);
             if (stack == null) {

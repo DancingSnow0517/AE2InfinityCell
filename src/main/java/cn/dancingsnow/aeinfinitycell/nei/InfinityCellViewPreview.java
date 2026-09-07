@@ -1,19 +1,17 @@
 package cn.dancingsnow.aeinfinitycell.nei;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import cn.dancingsnow.aeinfinitycell.storage.CellCount;
 import cn.dancingsnow.aeinfinitycell.storage.EssentiaStackKey;
 import cn.dancingsnow.aeinfinitycell.storage.FluidStackKey;
 import cn.dancingsnow.aeinfinitycell.storage.InfinityCellRecord;
 import cn.dancingsnow.aeinfinitycell.storage.ItemStackKey;
 
 public final class InfinityCellViewPreview {
-
-    private static final BigInteger BIG_LONG_MAX = BigInteger.valueOf(Long.MAX_VALUE);
 
     private InfinityCellViewPreview() {}
 
@@ -31,11 +29,15 @@ public final class InfinityCellViewPreview {
 
     public static List<Entry<Void>> eu(InfinityCellRecord record, int limit) {
         if (record == null || limit <= 0
-            || record.getEUAmountExact()
-                .signum() <= 0) {
+            || !record.getEUCount()
+                .isPositive()) {
             return Collections.emptyList();
         }
-        return Collections.singletonList(new Entry<>(null, record.getEUAmountExact()));
+        return Collections.singletonList(
+            new Entry<>(
+                null,
+                record.getEUCount()
+                    .copy()));
     }
 
     public static List<Page> pages(InfinityCellRecord record, int limit) {
@@ -66,16 +68,16 @@ public final class InfinityCellViewPreview {
         return pages;
     }
 
-    private static <K> List<Entry<K>> select(Map<K, BigInteger> source, int limit) {
+    private static <K> List<Entry<K>> select(Map<K, CellCount> source, int limit) {
         if (limit <= 0 || source.isEmpty()) {
             return Collections.emptyList();
         }
 
         List<Entry<K>> entries = new ArrayList<>();
-        for (Map.Entry<K, BigInteger> sourceEntry : source.entrySet()) {
-            BigInteger amount = sourceEntry.getValue();
-            if (amount != null && amount.signum() > 0) {
-                entries.add(new Entry<>(sourceEntry.getKey(), amount));
+        for (Map.Entry<K, CellCount> sourceEntry : source.entrySet()) {
+            CellCount amount = sourceEntry.getValue();
+            if (amount != null && amount.isPositive()) {
+                entries.add(new Entry<>(sourceEntry.getKey(), amount.copy()));
             }
         }
 
@@ -134,9 +136,9 @@ public final class InfinityCellViewPreview {
     public static final class Entry<K> {
 
         private final K key;
-        private final BigInteger amount;
+        private final CellCount amount;
 
-        private Entry(K key, BigInteger amount) {
+        private Entry(K key, CellCount amount) {
             this.key = key;
             this.amount = amount;
         }
@@ -145,14 +147,11 @@ public final class InfinityCellViewPreview {
             return key;
         }
 
-        public BigInteger getAmount() {
+        public CellCount getAmount() {
             return amount;
         }
 
         public long getStackSize() {
-            if (amount.compareTo(BIG_LONG_MAX) > 0) {
-                return Long.MAX_VALUE;
-            }
             return amount.longValue();
         }
     }

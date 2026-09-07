@@ -1,6 +1,5 @@
 package cn.dancingsnow.aeinfinitycell.ae;
 
-import java.math.BigInteger;
 import java.util.Map;
 
 import net.minecraft.item.ItemStack;
@@ -8,6 +7,7 @@ import net.minecraft.item.ItemStack;
 import appeng.api.storage.ICellCacheRegistry;
 import appeng.api.storage.ISaveProvider;
 import appeng.api.storage.data.IItemList;
+import cn.dancingsnow.aeinfinitycell.storage.CellCount;
 import cn.dancingsnow.aeinfinitycell.storage.EssentiaStackKey;
 import cn.dancingsnow.aeinfinitycell.storage.InfinityCellRecord;
 import thaumicenergistics.common.storage.AEEssentiaStack;
@@ -26,13 +26,7 @@ public final class InfinityEssentiaInventoryHandler extends AbstractInfinityInve
 
     @Override
     protected long extract(InfinityCellRecord record, AEEssentiaStack request, long amount, boolean modulate) {
-        EssentiaStackKey key = EssentiaStackKey.from(request);
-        long available = record.getEssentiaAmount(key);
-        long extracted = Math.min(available, amount);
-        if (modulate && extracted > 0L) {
-            record.removeEssentia(key, extracted);
-        }
-        return extracted;
+        return record.extractEssentia(EssentiaStackKey.from(request), amount, modulate);
     }
 
     @Override
@@ -42,11 +36,12 @@ public final class InfinityEssentiaInventoryHandler extends AbstractInfinityInve
 
     @Override
     protected void addAvailable(InfinityCellRecord record, IItemList<AEEssentiaStack> out) {
-        for (Map.Entry<EssentiaStackKey, BigInteger> entry : record.getEssentiaView()
+        for (Map.Entry<EssentiaStackKey, CellCount> entry : record.getEssentiaView()
             .entrySet()) {
-            long aeAmount = record.getEssentiaAmount(entry.getKey());
             AEEssentiaStack stack = entry.getKey()
-                .toStack(aeAmount);
+                .toStack(
+                    entry.getValue()
+                        .longValue());
             if (stack != null) {
                 out.addStorage(stack);
             }

@@ -2,7 +2,6 @@ package cn.dancingsnow.aeinfinitycell.nei;
 
 import static net.minecraft.util.EnumChatFormatting.GRAY;
 
-import java.math.BigInteger;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +34,7 @@ import cn.dancingsnow.aeinfinitycell.item.ItemInfinityStorageCell;
 import cn.dancingsnow.aeinfinitycell.nei.InfinityCellViewPreview.Channel;
 import cn.dancingsnow.aeinfinitycell.nei.InfinityCellViewPreview.Entry;
 import cn.dancingsnow.aeinfinitycell.nei.InfinityCellViewPreview.Page;
+import cn.dancingsnow.aeinfinitycell.storage.CellCount;
 import cn.dancingsnow.aeinfinitycell.storage.EssentiaStackKey;
 import cn.dancingsnow.aeinfinitycell.storage.FluidStackKey;
 import cn.dancingsnow.aeinfinitycell.storage.InfinityCellDataAccess;
@@ -382,7 +382,7 @@ public final class InfinityCellViewHandler implements IUsageHandler {
                     GRAY + GuiText.Stored.getLocal()
                         + ": "
                         + NumberFormat.getNumberInstance()
-                            .format(viewStack.amount));
+                            .format(viewStack.amount.toBigInteger()));
                 break;
             }
         }
@@ -424,12 +424,12 @@ public final class InfinityCellViewHandler implements IUsageHandler {
     private static final class ViewItemStack {
 
         private final PositionedStack stack;
-        private final BigInteger amount;
+        private final CellCount amount;
         private final long stackSize;
         private final IIcon icon;
         private final int color;
 
-        private ViewItemStack(PositionedStack stack, BigInteger amount, long stackSize, IIcon icon, int color) {
+        private ViewItemStack(PositionedStack stack, CellCount amount, long stackSize, IIcon icon, int color) {
             this.stack = stack;
             this.amount = amount;
             this.stackSize = stackSize;
