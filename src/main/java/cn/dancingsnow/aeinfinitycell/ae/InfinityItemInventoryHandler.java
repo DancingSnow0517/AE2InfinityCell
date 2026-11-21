@@ -70,6 +70,11 @@ public final class InfinityItemInventoryHandler extends AbstractInfinityInventor
         return record.getUsedItemTypes();
     }
 
+    @Override
+    protected long storedUnits(InfinityCellRecord record) {
+        return record.getStoredItemUnits();
+    }
+
     private static ItemStackKey key(IAEItemStack stack) {
         try {
             return ItemStackKey.from(stack.getItemStack());

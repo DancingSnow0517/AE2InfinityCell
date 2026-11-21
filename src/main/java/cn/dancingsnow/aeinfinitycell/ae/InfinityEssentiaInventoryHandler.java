@@ -52,4 +52,9 @@ public final class InfinityEssentiaInventoryHandler extends AbstractInfinityInve
     protected long usedTypes(InfinityCellRecord record) {
         return record.getUsedEssentiaTypes();
     }
+
+    @Override
+    protected long storedUnits(InfinityCellRecord record) {
+        return record.getStoredEssentiaUnits();
+    }
 }

@@ -43,4 +43,9 @@ public final class InfinityEUInventoryHandler extends AbstractInfinityInventoryH
     protected long usedTypes(InfinityCellRecord record) {
         return record.getUsedEUTypes();
     }
+
+    @Override
+    protected long storedUnits(InfinityCellRecord record) {
+        return record.getStoredEUUnits();
+    }
 }

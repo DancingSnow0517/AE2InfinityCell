@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -12,6 +13,9 @@ import net.minecraft.util.IIcon;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 
+import appeng.api.config.FuzzyMode;
+import appeng.api.implementations.items.IStorageCell;
+import appeng.tile.inventory.AppEngNullInventory;
 import cn.dancingsnow.aeinfinitycell.AEInfinityCell;
 import cn.dancingsnow.aeinfinitycell.storage.InfinityCellDataAccess;
 import cn.dancingsnow.aeinfinitycell.storage.InfinityCellRecord;
@@ -19,10 +23,11 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fox.spiteful.avaritia.render.IHaloRenderItem;
 
-public final class ItemInfinityStorageCell extends Item implements IHaloRenderItem {
+public final class ItemInfinityStorageCell extends Item implements IHaloRenderItem, IStorageCell {
 
     private static final String TAG_ROOT = AEInfinityCell.MODID;
     private static final String TAG_STORAGE_ID = "storageId";
+    private static final IInventory EMPTY_INVENTORY = new AppEngNullInventory();
 
     public IIcon halo;
 
@@ -133,5 +138,75 @@ public final class ItemInfinityStorageCell extends Item implements IHaloRenderIt
     @Override
     public int getHaloColour(ItemStack stack) {
         return 0xFF000000;
+    }
+
+    @Override
+    public boolean isEditable(ItemStack stack) {
+        return true;
+    }
+
+    @Override
+    public IInventory getUpgradesInventory(ItemStack stack) {
+        return EMPTY_INVENTORY;
+    }
+
+    @Override
+    public IInventory getConfigInventory(ItemStack stack) {
+        return EMPTY_INVENTORY;
+    }
+
+    @Override
+    public FuzzyMode getFuzzyMode(ItemStack stack) {
+        return FuzzyMode.IGNORE_ALL;
+    }
+
+    @Override
+    public void setFuzzyMode(ItemStack stack, FuzzyMode mode) {}
+
+    @Deprecated
+    @Override
+    public int getBytes(ItemStack stack) {
+        return Integer.MAX_VALUE;
+    }
+
+    @Override
+    public long getBytesLong(ItemStack stack) {
+        return Long.MAX_VALUE;
+    }
+
+    @Deprecated
+    @Override
+    public int BytePerType(ItemStack stack) {
+        return 0;
+    }
+
+    @Override
+    public int getBytesPerType(ItemStack stack) {
+        return 0;
+    }
+
+    @Override
+    public int getTotalTypes(ItemStack stack) {
+        return 63;
+    }
+
+    @Override
+    public boolean isBlackListed(ItemStack cellItem, appeng.api.storage.data.IAEItemStack requestedAddition) {
+        return false;
+    }
+
+    @Override
+    public double getIdleDrain() {
+        return 0.5D;
+    }
+
+    @Override
+    public boolean isStorageCell(ItemStack stack) {
+        return true;
+    }
+
+    @Override
+    public boolean storableInStorageCell() {
+        return false;
     }
 }

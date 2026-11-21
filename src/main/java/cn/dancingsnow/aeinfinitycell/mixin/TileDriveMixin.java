@@ -75,9 +75,14 @@ public abstract class TileDriveMixin {
             return;
         }
 
-        MEInventoryHandler mounted = new MEInventoryHandler(cell, cell.getStackType());
-        mounted.setPriority(this.priority);
-        handlers.add(mounted);
+        if (cell instanceof MEInventoryHandler) {
+            ((MEInventoryHandler) cell).setPriority(this.priority);
+            handlers.add(cell);
+        } else {
+            MEInventoryHandler mounted = new MEInventoryHandler(cell, cell.getStackType());
+            mounted.setPriority(this.priority);
+            handlers.add(mounted);
+        }
     }
 
     @Unique

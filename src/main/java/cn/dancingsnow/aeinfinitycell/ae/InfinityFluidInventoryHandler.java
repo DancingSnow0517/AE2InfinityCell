@@ -65,4 +65,9 @@ public final class InfinityFluidInventoryHandler extends AbstractInfinityInvento
     protected long usedTypes(InfinityCellRecord record) {
         return record.getUsedFluidTypes();
     }
+
+    @Override
+    protected long storedUnits(InfinityCellRecord record) {
+        return record.getStoredFluidUnits();
+    }
 }
