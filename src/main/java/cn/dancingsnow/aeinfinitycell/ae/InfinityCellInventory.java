@@ -167,7 +167,10 @@ public final class InfinityCellInventory<T extends IAEStack<T>> implements ICell
 
     @Override
     public long getTotalItemTypes() {
-        return Long.MAX_VALUE;
+        // 只供 NEI 元件视图绘制槽位网格（按 9 列换行），无限语义会撑爆 Tessellator 导致 OOM，
+        // 这里返回足以容纳当前内容的一个行式网格。
+        long stored = getStoredItemTypes();
+        return stored == 0L ? 1L : ((stored - 1L) / 9L + 1L) * 9L;
     }
 
     @Override
